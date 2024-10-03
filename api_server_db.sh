@@ -17,8 +17,8 @@ echo "VPC $VPC_ID created successfully"
 IGW_ID=$(aws ec2 create-internet-gateway \
     --tag-specifications "ResourceType=internet-gateway,Tags=[{Key=Name,Value=igw-apiproject}]" \
     --output text \
-    --query "InternetGateway.InternetGatewayId"
-echo "IGW $IGW_ID created successfully")
+    --query "InternetGateway.InternetGatewayId")
+echo "IGW $IGW_ID created successfully"
 
 #Attach Internet Gateway to VPC
 aws ec2 attach-internet-gateway \
