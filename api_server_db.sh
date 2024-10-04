@@ -104,3 +104,18 @@ echo "Security group $SG_ALB_ID created successfully."
 aws ec2 authorize-security-group-ingress --group-id $SG_ALB_ID --protocol tcp --port 80 --cidr 0.0.0.0/0  
 aws ec2 authorize-security-group-ingress --group-id $SG_ALB_ID --protocol tcp --port 443 --cidr 0.0.0.0/0
 echo "Security group $SG_ALB_ID authorized for HTTP and HTTPS ingress."
+
+#Create Application Security Group
+SG_APP_ID=$(aws ec2 create-security-group \
+    --group-name apiproject_app_sg \
+    --description "Application sg" \
+    --tag-specifications "ResourceType=security-group,Tags=[{Key=string,Value=app_sg_apiproject}]" \
+    --vpc-id $VPC_ID \
+    --output text \
+    --query "GroupId")
+echo "Security group $SG_APP_ID created successfully."
+
+#Enable the APP security group to allow HTTP, HTTPS, and port 3000 access from the ALB SG
+aws ec2 authorize-security-group-ingress --group-id $SG_APP_ID --protocol tcp --port 80 --source-group $SG_ALB_ID
+aws ec2 authorize-security-group-ingress --group-id $SG_APP_ID --protocol tcp --port 443 --source-group $SG_ALB_ID
+aws ec2 authorize-security-group-ingress --group-id $SG_APP_ID --protocol tcp --port 3000 --source-group $SG_ALB_ID
