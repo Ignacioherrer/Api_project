@@ -84,8 +84,23 @@ echo "Subnet $SUBNET_PRIVATE created successfully"
 
 #Create private route table
 RT_PRIVATE=$(aws ec2 create-route-table --vpc-id $VPC_ID --output text --query "RouteTable.RouteTableId" \
-    --tag-specification "ResourceType=route-table,Tags=[{Key=string,Value=private_rt_apiproject}]")
+    --tag-specifications "ResourceType=route-table,Tags=[{Key=string,Value=private_rt_apiproject}]")
 
 #Associate the private subnet with the private route table
 aws ec2 associate-route-table --route-table-id $RT_PRIVATE --subnet-id $SUBNET_PRIVATE
 echo "Subnet $SUBNET_PRIVATE associated with route table $RT_PRIVATE"
+
+#Create ALB Security group
+SG_ALB_ID=$(aws ec2 create-security-group \
+    --group-name apiproject_alb_sg \
+    --description "Application Load Balancer sg" \
+    --tag-specifications "ResourceType=security-group,Tags=[{Key=string,Value=alb_sg_apiproject}]" \
+    --vpc-id $VPC_ID \
+    --output text \
+    --query "GroupId")
+echo "Security group $SG_ALB_ID created successfully."
+
+#Enable the ALB security group to allow HTTP, HTTPS access from anywhere
+aws ec2 authorize-security-group-ingress --group-id $SG_ALB_ID --protocol tcp --port 80 --cidr 0.0.0.0/0  
+aws ec2 authorize-security-group-ingress --group-id $SG_ALB_ID --protocol tcp --port 443 --cidr 0.0.0.0/0
+echo "Security group $SG_ALB_ID authorized for HTTP and HTTPS ingress."
