@@ -138,3 +138,16 @@ echo "Security group $SG_DB_ID authorized for ingress from the APP SG."
 #Enable the APP security group to allow access from the DB SG
 aws ec2 authorize-security-group-ingress --group-id $SG_APP_ID --protocol tcp --port 27017 --source-group $SG_DB_ID
 echo "Security group $SG_APP_ID authorized for ingress from the DB SG."
+
+#Allocate the Elastic IP
+EIP_ALLOC_ID=$(aws ec2 allocate-address \
+    --query "AllocationId" --output text)
+echo "Elastic IP allocated successfully."
+
+#Create a NAT Gateway 
+NAT_GW_ID=$(aws ec2 create-nat-gateway \
+    --subnet-id $SUBNET1_PUBLIC \
+    --allocation-id $EIP_ALLOC_ID \
+    --query "NatGateway.NatGatewayId" \
+    --output text)
+echo "NAT Gateway $NAT_GW_ID created successfully."
