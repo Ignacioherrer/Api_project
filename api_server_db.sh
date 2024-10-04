@@ -70,3 +70,22 @@ echo "Public IP auto-assign enabled successfully."
 #Associate the public subnet 1 with the route table
 aws ec2 associate-route-table --route-table-id $RT_PUBLIC --subnet-id $SUBNET2_PUBLIC
 echo "Subnet $SUBNET2_PUBLIC associated with route table $RT_PUBLIC"
+
+#Create private subnet
+SUBNET_PRIVATE=$(aws ec2 create-subnet \
+    --vpc-id $VPC_ID \
+    --cidr-block 10.0.10.0/24 \
+    --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=private_subnet_apiproject}]" \
+    --availability-zone $SUBNET1_PUBLIC_AZ \
+    --region $REGION \
+    --output text \
+    --query "Subnet.SubnetId")
+echo "Subnet $SUBNET_PRIVATE created successfully"
+
+#Create private route table
+RT_PRIVATE=$(aws ec2 create-route-table --vpc-id $VPC_ID --output text --query "RouteTable.RouteTableId" \
+    --tag-specification "ResourceType=route-table,Tags=[{Key=string,Value=private_rt_apiproject}]")
+
+#Associate the private subnet with the private route table
+aws ec2 associate-route-table --route-table-id $RT_PRIVATE --subnet-id $SUBNET_PRIVATE
+echo "Subnet $SUBNET_PRIVATE associated with route table $RT_PRIVATE"
