@@ -119,3 +119,22 @@ echo "Security group $SG_APP_ID created successfully."
 aws ec2 authorize-security-group-ingress --group-id $SG_APP_ID --protocol tcp --port 80 --source-group $SG_ALB_ID
 aws ec2 authorize-security-group-ingress --group-id $SG_APP_ID --protocol tcp --port 443 --source-group $SG_ALB_ID
 aws ec2 authorize-security-group-ingress --group-id $SG_APP_ID --protocol tcp --port 3000 --source-group $SG_ALB_ID
+echo "Security group $SG_APP_ID authorized for HTTP ingress from the ALB SG."
+
+#Create Database Security Group
+SG_DB_ID=$(aws ec2 create-security-group \
+    --group-name apiproject_db_sg \
+    --description "Database sg" \
+    --tag-specifications "ResourceType=security-group,Tags=[{Key=string,Value=db_sg_apiproject}]" \
+    --vpc-id $VPC_ID \
+    --output text \
+    --query "GroupId")
+echo "Security group $SG_DB_ID created successfully."
+
+#Enable the DB security group to allow access from the APP SG.
+aws ec2 authorize-security-group-ingress --group-id $SG_DB_ID --protocol tcp --port 27017 --source-group $SG_APP_ID
+echo "Security group $SG_DB_ID authorized for ingress from the APP SG."
+
+#Enable the APP security group to allow access from the DB SG
+aws ec2 authorize-security-group-ingress --group-id $SG_APP_ID --protocol tcp --port 27017 --source-group $SG_DB_ID
+echo "Security group $SG_APP_ID authorized for ingress from the DB SG."
