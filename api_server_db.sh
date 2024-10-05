@@ -194,3 +194,11 @@ ALB_ARN=$(aws elbv2 create-load-balancer --name apiproject-load-balancer \
     --query "LoadBalancers[0].LoadBalancerArn" \
     --output text)
 echo "ALB $ALB_ARN created successfully."
+
+#Create a listener for the load balancer
+aws elbv2 create-listener --load-balancer-arn $ALB_ARN \
+    --protocol HTTP \
+    --port 80 \ 
+    --tags "Key=Name,Value=listener_apiproject" \
+    --default-actions Type=forward,TargetGroupArn=$TG_ARN
+echo "Listener for the ALB created successfully."
