@@ -202,3 +202,12 @@ aws elbv2 create-listener --load-balancer-arn $ALB_ARN \
     --tags "Key=Name,Value=listener_apiproject" \
     --default-actions Type=forward,TargetGroupArn=$TG_ARN
 echo "Listener for the ALB created successfully."
+
+#Create a launch template
+LAUNCH_TEMPLATE_ID=$(aws ec2 create-launch-template --launch-template-name apiproject-launch-template \
+    --launch-template-data "ImageId=ami-0866a3c8686eaeeba,InstanceType=t2.micro,SecurityGroupIds=$SG_APP_ID \
+    UserData=$(base64 -w 0 userdata_app.sh)" \
+    --tag-specifications "ResourceType=launch-template,Tags=[{Key=Name,Value=launchtemp_apiproject}]" \
+    --query "LaunchTemplate.LaunchTemplateId" \
+    --output text)
+echo "Launch template $LAUNCH_TEMPLATE_ID created successfully."
