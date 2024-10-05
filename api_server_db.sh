@@ -158,4 +158,5 @@ aws ec2 wait nat-gateway-available --nat-gateway-ids $NAT_GW_ID
 echo "NAT Gateway available to be used."
 
 #Add a route to the NAT Gateway in the private route table
-
+aws ec2 create-route --route-table-id $RT_PRIVATE --destination-cidr-block 0.0.0.0/0 --gateway-id $NAT_GW_ID
+echo "Route created in the private subnet to the NAT Gateway."
