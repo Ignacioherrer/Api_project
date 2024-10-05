@@ -160,3 +160,17 @@ echo "NAT Gateway available to be used."
 #Add a route to the NAT Gateway in the private route table
 aws ec2 create-route --route-table-id $RT_PRIVATE --destination-cidr-block 0.0.0.0/0 --gateway-id $NAT_GW_ID
 echo "Route created in the private subnet to the NAT Gateway."
+
+#Create EC2 Instance Database
+DB_EC2=$(aws ec2 run-instances \
+    --image-id ami-0866a3c8686eaeeba \
+    --count 1 \
+    --instance-type t2.micro \
+    --subnet-id $SUBNET_PRIVATE \
+    --private-ip-address 10.0.10.10 \
+    --tag-specifications "ResourceType=instance,Tags=[{Key=string,Value=db_ec2_apiproject}]" \
+    --user-data file://userdata.sh \
+    --security-group-ids $SG_DB_ID \
+    --output text \
+    --query "Instances[0].InstanceId")
+echo "Instance Database $DB_EC2 created successfully."
