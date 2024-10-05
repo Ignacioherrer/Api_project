@@ -174,3 +174,13 @@ DB_EC2=$(aws ec2 run-instances \
     --output text \
     --query "Instances[0].InstanceId")
 echo "Instance Database $DB_EC2 created successfully."
+
+#Create a target group and retrieve the ARN
+TG_ARN=$(aws elbv2 create-target-group --name apiproject-target-group \
+    --protocol HTTP \
+    --port 3000 \
+    --vpc-id $VPC_ID \
+    --tags "Key=Name,Value=target_group_apiproject" \
+    --query "TargetGroups[0].TargetGroupArn" \
+    --output text)
+echo "Target group $TG_ARN created successfully."
