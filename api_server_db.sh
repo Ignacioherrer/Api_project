@@ -184,3 +184,13 @@ TG_ARN=$(aws elbv2 create-target-group --name apiproject-target-group \
     --query "TargetGroups[0].TargetGroupArn" \
     --output text)
 echo "Target group $TG_ARN created successfully."
+
+#Create the Application Load Balancer 
+ALB_ARN=$(aws elbv2 create-load-balancer --name apiproject-load-balancer \
+    --subnets $SUBNET1_PUBLIC $SUBNET2_PUBLIC \
+    --security-groups $SG_ALB_ID \
+    --type application \
+    --tags "Key=Name,Value=alb_apiproject" \
+    --query "LoadBalancers[0].LoadBalancerArn" \
+    --output text)
+echo "ALB $ALB_ARN created successfully."
