@@ -151,3 +151,11 @@ NAT_GW_ID=$(aws ec2 create-nat-gateway \
     --query "NatGateway.NatGatewayId" \
     --output text)
 echo "NAT Gateway $NAT_GW_ID created successfully."
+
+#Wait for the NAT Gateway to be available
+echo "Waiting for NAT Gateway to be available..."
+aws ec2 wait nat-gateway-available --nat-gateway-ids $NAT_GW_ID
+echo "NAT Gateway available to be used."
+
+#Add a route to the NAT Gateway in the private route table
+
