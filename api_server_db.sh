@@ -211,3 +211,15 @@ LAUNCH_TEMPLATE_ID=$(aws ec2 create-launch-template --launch-template-name apipr
     --query "LaunchTemplate.LaunchTemplateId" \
     --output text)
 echo "Launch template $LAUNCH_TEMPLATE_ID created successfully."
+
+#Create an Auto scaling group
+aws autoscaling create-auto-scaling-group --auto-scaling-group-name apiproject-scaling-group \
+    --launch-template "LaunchTemplateId=$LAUNCH_TEMPLATE_ID,Version=1" \
+    --min-size 2 \
+    --max-size 4 \
+    --desired-capacity 2 \
+    --target-group-arns $TG_ARN \
+    --vpc-zone-identifier $SUBNET1_PUBLIC,$SUBNET2_PUBLIC \
+    --tags "Key=Name,Value=asg_apiproject" \
+    --default-cooldown 300
+echo "Auto scaling group created successfully"
