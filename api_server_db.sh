@@ -31,6 +31,7 @@ SUBNET1_PUBLIC=$(aws ec2 create-subnet \
     --vpc-id $VPC_ID \
     --cidr-block 10.0.0.0/24 \
     --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=public_subnet1_apiproject}]" \
+    --availability-zone $SUBNET1_PUBLIC_AZ \
     --region $REGION \
     --output text \
     --query "Subnet.SubnetId")
@@ -58,6 +59,7 @@ SUBNET2_PUBLIC=$(aws ec2 create-subnet \
     --vpc-id $VPC_ID \
     --cidr-block 10.0.9.0/24 \
     --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=public_subnet2_apiproject}]" \
+    --availability-zone $SUBNET2_PUBLIC_AZ \
     --region $REGION \
     --output text \
     --query "Subnet.SubnetId")
@@ -84,7 +86,7 @@ echo "Subnet $SUBNET_PRIVATE created successfully"
 
 #Create private route table
 RT_PRIVATE=$(aws ec2 create-route-table --vpc-id $VPC_ID --output text --query "RouteTable.RouteTableId" \
-    --tag-specifications "ResourceType=route-table,Tags=[{Key=string,Value=private_rt_apiproject}]")
+    --tag-specifications "ResourceType=route-table,Tags=[{Key=Name,Value=private_rt_apiproject}]")
 
 #Associate the private subnet with the private route table
 aws ec2 associate-route-table --route-table-id $RT_PRIVATE --subnet-id $SUBNET_PRIVATE
@@ -198,8 +200,7 @@ echo "ALB $ALB_ARN created successfully."
 #Create a listener for the load balancer
 aws elbv2 create-listener --load-balancer-arn $ALB_ARN \
     --protocol HTTP \
-    --port 80 \ 
-    --tags "Key=Name,Value=listener_apiproject" \
+    --port 80 \
     --default-actions Type=forward,TargetGroupArn=$TG_ARN
 echo "Listener for the ALB created successfully."
 
@@ -225,7 +226,7 @@ aws autoscaling create-auto-scaling-group --auto-scaling-group-name apiproject-s
 echo "Auto scaling group created successfully"
 
 #Create a scaling policy based on CPU Utilization
-aws application-autoscaling put-scaling-policy --policy-name cpu-scaling-policy \
+aws autoscaling put-scaling-policy --policy-name cpu-scaling-policy \
     --auto-scaling-group-name apiproject-scaling-group \
     --policy-type TargetTrackingScaling \
     --target-tracking-configuration "PredefinedMetricSpecification={PredefinedMetricType=ASGAverageCPUUtilization},TargetValue=80"
