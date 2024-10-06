@@ -223,3 +223,9 @@ aws autoscaling create-auto-scaling-group --auto-scaling-group-name apiproject-s
     --tags "Key=Name,Value=asg_apiproject" \
     --default-cooldown 300
 echo "Auto scaling group created successfully"
+
+#Create a scaling policy based on CPU Utilization
+aws application-autoscaling put-scaling-policy --policy-name cpu-scaling-policy \
+    --auto-scaling-group-name apiproject-scaling-group \
+    --policy-type TargetTrackingScaling \
+    --target-tracking-configuration "PredefinedMetricSpecification={PredefinedMetricType=ASGAverageCPUUtilization},TargetValue=80"
